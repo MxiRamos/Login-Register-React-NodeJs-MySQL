@@ -5,8 +5,60 @@ const {application} = require('express')
 const myconn = require('express-myconnection')
 const cors = require('cors')
 
-//app.use(express.json());
+
+const app = express();
+
+app.use(express.json());
+app.use(cors());
+
+const db = mysql.createConnection({
+    user: "root",
+    host: "localhost",
+    password: "Password@123",
+    database: "library"
+})
+
+
+
+app.post('/register', (req, res) =>{
+    const username = req.body.username;
+    const password = req.body.password;
+
+    db.query(
+        "INSERT INTO users (user, password) VALUES(?,?)",
+        [username, password],
+        (err, result) => {
+            console.log(err);
+        }
+    )
+});
+
+app.post('/login', (req, res) => {
+    const username = req.body.username;
+    const password = req.body.password;
+
+    db.query(
+        "SELECT * FROM users WHERE user = ? AND password = ? ",
+        [username, password],
+        (err, result) => {
+            if(err){
+                res.send({err: err});
+            } 
+
+            if (result) {
+                    res.send(result);
+            } else{
+                    res.send({ message: "Wrong username/password combination!"})
+            }
+            
+        }
+    )
+})
+
+
+/*
 const app = express()
+app.use(express.json());
 
 app.set('port', process.env.PORT || 5000)
 
@@ -28,7 +80,10 @@ app.get('/', (req, res) =>{
     res.send("bienvenidos")
 
 })
-app.use('/api', routes)
+app.use('/register', routes)
+
+*/
+
 
 app.listen(5000, () => {
     console.log("running on port", 5000)
