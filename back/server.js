@@ -21,12 +21,12 @@ const db = mysql.createConnection({
 
 
 app.post('/register', (req, res) =>{
-    const username = req.body.username;
+    const user = req.body.user;
     const password = req.body.password;
 
     db.query(
         "INSERT INTO users (user, password) VALUES(?,?)",
-        [username, password],
+        [user, password],
         (err, result) => {
             console.log(err);
         }
@@ -34,23 +34,36 @@ app.post('/register', (req, res) =>{
 });
 
 app.post('/login', (req, res) => {
-    const username = req.body.username;
+    const user = req.body.user; 
     const password = req.body.password;
 
     db.query(
         "SELECT * FROM users WHERE user = ? AND password = ? ",
-        [username, password],
+        [user, password],
         (err, result) => {
             if(err){
                 res.send({err: err});
             } 
 
-            if (result) {
-                    res.send(result);
+            if (result.length > 0) {
+                res.send(result);
             } else{
-                    res.send({ message: "Wrong username/password combination!"})
+                res.send({ message: "Wrong username/password combination!"})
             }
             
+        }
+    )
+});
+
+app.delete('/:id', (req,res) => {
+    const user = req.body.user; 
+    const password = req.body.password;
+
+    db.query(
+        "DELETE FROM users WHERE id = ? ", [req.params.id], (err, rows) => {
+            if(err) return res.send(err)
+
+            res.send('eliminated')
         }
     )
 })
